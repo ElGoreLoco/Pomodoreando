@@ -1,0 +1,7 @@
+# Este es un script de bash que sirve para bajar un directorio desde donde está almacenado. Así puedo tener los scripts en una carpeta diferente. Si no tuviese este script no me podría importar el resto de módulos.
+# Esto también se puede hacer con python pero no me gusta porque lo más probable es que lo tuviese que incluir en el código que se instala, y esto solo es necesario cuando estoy trabajando.
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+echo $DIR
+cd $DIR
+cd ..
+python3 scripts/pomodoreando $1

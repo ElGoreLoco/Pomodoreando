@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import sys
 
-import src.cronometro as cronometro
+import pomodoreando.cronometro as cronometro
 
 argumento = sys.argv[1]
 """
@@ -55,7 +55,7 @@ Si en cambio desea terminar, introduzca «t».""")
 Por favor, lea otra vez las instrucciones que le han sido proporcionadas.""")
             siguiente = input()
 elif argumento == "caca":
-    print("¿Por qué coño has puesto el argumento caca? .-.")
+    print("¿Por qué coño has puesto caca? .-.")
 
 else:
     argumento = int(argumento)*60   # ahora está en número y en segundos
