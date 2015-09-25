@@ -1,5 +1,5 @@
 import time
-import paralelo
+import src.paralelo as paralelo
 
 
 def cronometro(fin, nombre):

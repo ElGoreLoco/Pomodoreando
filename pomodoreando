@@ -1,6 +1,7 @@
+#!/usr/bin/python3
 import sys
 
-import cronometro
+import src.cronometro as cronometro
 
 argumento = sys.argv[1]
 """
@@ -10,7 +11,7 @@ hay tres opciones:
     - no poner nada o "ayuda" para que imprima la ayuda
 """
 
-if argumento == "":
+if argumento == "ayuda":
     print(
 """AYUDA
 Ponga como primer argumento el número de minutos que quiere que
@@ -53,6 +54,8 @@ Si en cambio desea terminar, introduzca «t».""")
 """La letra que ha introducido no forma parte del intérprete.
 Por favor, lea otra vez las instrucciones que le han sido proporcionadas.""")
             siguiente = input()
+elif argumento == "caca":
+    print("¿Por qué coño has puesto el argumento caca? .-.")
 
 else:
     argumento = int(argumento)*60   # ahora está en número y en segundos
