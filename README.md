@@ -12,7 +12,7 @@ pero por ahora puedes instalarlo desde el código fuente.
 Para instalarlo simplemente muevete al sitio en el que tienes el código y
 ejecuta el siguiente comando en la terminal:
 ```sudo python3 setup.py install```
-Ya deberías tener instalado el programa. Ahora puedes ejecutar `pomodoro`
+Ya deberías tener instalado el programa. Ahora puedes ejecutar `pomodoreando`
 en la terminal.
 
 ## Instrucciones de uso
