@@ -1,65 +1,126 @@
 #!/usr/bin/python3
+"""Usage:
+    pomodoreando [-dci] (pomodoro [--desc_largo] | <intervalo>...)
+
+Opciones:
+    -h --help         Muestra la ayuda
+    -v --version      Versión
+    -d --desarrollo   Activa el modo desarrollo
+    -c --continuo     Hace que no tengas que confirmar para que comience el
+                      siguiente intervalo
+    -i --infinito     Hace que los intervalos sean infinitos
+    --desc_largo      Hace que cada 4 pomodoros haya un descanso largo
+
+Tutorial:
+    Ponga como primer argumento el número de minutos que quiere que
+    espere el cronómetro, o «pomodoro» para que haga intervalos de
+    25 y 5 minutos.
+    Cuando esté corriendo el cronómetro, puede pulsar la tecla «p»
+    para parar o proseguir el cronómetro, y la letra «t» para terminar
+    el cronómetro.
+"""
+
+__version__ = "0.0.0"
+
 import sys
+import os
+from docopt import docopt
+
+argumentos = docopt(__doc__, version=__version__)
+
+if argumentos['--desarrollo']:
+    """La opción desarrollo sirve para cambiar el directorio de trabajo
+    a la carpeta principal.
+    Es NECESARIO utilizarlo cuando se está desarrollando."""
+    dir_trab = os.path.dirname(
+        os.path.dirname(
+            os.path.abspath(__file__)
+        )
+    )
+    os.chdir(dir_trab)
+    sys.path.append(dir_trab)
 
 import pomodoreando.cronometro as cronometro
 
-argumento = sys.argv[1]
-"""
-hay tres opciones:
-    - poner "pomodoro" para que inicie la secuencia de 25 y 5 minutos
-    - poner el tiempo(en minutos) que se desea que cronometre
-    - no poner nada o "ayuda" para que imprima la ayuda
-"""
-
-if argumento == "ayuda":
-    print(
-"""AYUDA
-Ponga como primer argumento el número de minutos que quiere que
-espere el cronómetro, o «pomodoro» para que haga intervalos de
-25 y 5 minutos.
-Cuando esté corriendo el cronómetro, puede pulsar la tecla «p»
-para parar o proseguir el cronómetro, y la letra «t» para terminar
-el cronómetro.""")
-
-elif argumento == "pomodoro":
-    siguiente = "p"     # variable que indica si el siguiente tiempo es un pomodoro o un descanso
+if argumentos['pomodoro']:
+    siguiente = "p"
     pomodoros = 0
-    
     while siguiente != "t":
         if siguiente == "p":
-            cronometro.cronometro(25*60, "Pomodoro")
-            print("""
+            siguiente = cronometro.cronometro(25*60, "Pomodoro")
+            pomodoros += 1
+            if not argumentos['--continuo']:
+                print("""
 Si desea empezar el descanso corto de 5min, introduzca «d»,
 y si desea empezar el descanso largo de 15min, introduzca «dl».
 Si en cambio desea terminar, introduzca «t».""")
-            pomodoros += 1
-            siguiente = input()
-        
+                siguiente = input()
+            else:
+                if siguiente == "t":
+                    pass
+                elif pomodoros % 4 != 0:
+                    siguiente = "d"
+                else:
+                    siguiente = "dl"
         elif siguiente == "d":
-            cronometro.cronometro(5*60, "Descanso")
-            print("""
+            siguiente = cronometro.cronometro(5*60, "Descanso")
+            if not argumentos['--continuo']:
+                print("""
 Si desea comenzar el siguiente pomodoro, introduzca «p».
 Si en cambio desea terminar, introduzca «t».""")
-            siguiente = input()
-
+                siguiente = input()
+            else:
+                if siguiente == "t":
+                    pass
+                else:
+                    siguiente = "p"
         elif siguiente == "dl":
-            cronometro.cronometro(15*60, "Descanso")
-            print("""
+            siguiente = cronometro.cronometro(15*60, "Descanso")
+            if not argumentos['--continuo']:
+                print("""
 Si desea comenzar el siguiente pomodoro, introduzca «p».
 Si en cambio desea terminar, introduzca «t».""")
-            siguiente = input()
-
+                siguiente = input()
+            else:
+                if siguiente == "t":
+                    pass
+                else:
+                    siguiente = "p"
         else:
-            print(
-"""La letra que ha introducido no forma parte del intérprete.
+            print("""La letra que ha introducido no forma parte del intérprete.
 Por favor, lea otra vez las instrucciones que le han sido proporcionadas.""")
             siguiente = input()
-elif argumento == "caca":
-    print("¿Por qué coño has puesto caca? .-.")
 
 else:
-    argumento = int(argumento)*60   # ahora está en número y en segundos
-    cronometro.cronometro(argumento, "Cronómetro")
+    argumentos['<intervalo>'] = [
+        float(i) * 60 for i in argumentos['<intervalo>']
+    ]
+    siguiente = "i"
+    while siguiente != "t":
+        for i in argumentos['<intervalo>']:
+            if siguiente == "i":
+                siguiente = cronometro.cronometro(i, "Cronómetro")
 
-if argumento == "pomodoro":
-    print("Número de pomodoros completados: %i" % pomodoros)
+                if not argumentos['--continuo']:
+                    print("""
+Si desea seguir el intervalo, introduzca «i».
+Si en cambio desea terminar, introduzca «t».""")
+                    siguiente = input()
+
+                    while siguiente != "i" and siguiente != "t":
+                        print(
+"""La letra que ha introducido no forma parte del intérprete.
+Por favor, lea otra vez las instrucciones que le han sido proporcionadas.""")
+                        siguiente = input()
+
+                else:
+                    if siguiente != "t":
+                        siguiente = "i"
+
+            elif siguiente == "t":
+                break
+
+        if not argumentos['--infinito']:
+            siguiente = "t"
+
+os._exit(0)

@@ -8,13 +8,13 @@ class Teclado(threading.Thread):
     def run(self):
         global terminar
         global parar
-        entrada = input()
+        self.entrada = input()
 
-        if entrada == "t":
+        if self.entrada == "t":
             terminar = True
 
-        elif entrada == "p":
+        elif self.entrada == "p":
             parar = True
 
         else:
-            Teclado().start()
+            self.run()

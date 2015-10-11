@@ -8,7 +8,7 @@ def cronometro(fin, nombre):
     paralelo.parar = False
 
     paralelo.Teclado().start()
-    print("El %s ha sido iniciado a %imin." % (nombre.lower(), fin/60))
+    print("El %s ha sido iniciado a %fmin." % (nombre.lower(), fin/60))
 
     while not paralelo.terminar:
         print(time.ctime(segs)[14:19])
@@ -29,7 +29,10 @@ def cronometro(fin, nombre):
                 paralelo.parar = False
 
         if segs == fin:
-            paralelo.terminar = True
+            break
 
     else:
         print("El %s ha terminado." % nombre.lower())
+
+        if paralelo.terminar == True:
+            return "t"
