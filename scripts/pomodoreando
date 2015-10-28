@@ -20,8 +20,6 @@ Tutorial:
     el cronómetro.
 """
 
-__version__ = "0.0.0"
-
 import sys
 import os
 from docopt import docopt
@@ -100,26 +98,21 @@ else:
         for i in argumentos['<intervalo>']:
             if siguiente == "i":
                 siguiente = cronometro.cronometro(i, "Cronómetro")
-
                 if not argumentos['--continuo']:
                     print("""
 Si desea seguir el intervalo, introduzca «i».
 Si en cambio desea terminar, introduzca «t».""")
                     siguiente = input()
-
                     while siguiente != "i" and siguiente != "t":
                         print(
 """La letra que ha introducido no forma parte del intérprete.
 Por favor, lea otra vez las instrucciones que le han sido proporcionadas.""")
                         siguiente = input()
-
                 else:
                     if siguiente != "t":
                         siguiente = "i"
-
             elif siguiente == "t":
                 break
-
         if not argumentos['--infinito']:
             siguiente = "t"
 
