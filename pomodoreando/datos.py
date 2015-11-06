@@ -1,10 +1,3 @@
-import curses
-
-colores = {"blanco": curses.color_pair(1),
-           "negro": curses.color_pair(2),
-           "rosa": curses.color_pair(3)
-           }
-
 numeros = {"0": ["###",
                  "# #",
                  "# #",
