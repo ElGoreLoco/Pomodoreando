@@ -1,3 +1,4 @@
+"""Aquí están todos los carácteres que se pueden dibujar."""
 numeros = {"0": ["###",
                  "# #",
                  "# #",

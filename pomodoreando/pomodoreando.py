@@ -23,10 +23,10 @@ from docopt import docopt
 from datos import *
 from __version__ import __version__
 
-# Incializar docopt
-argumentos = docopt(__doc__, version=__version__)
+# Inicializar docopt
+entrada = docopt(__doc__, version=__version__)
 
-# Inicializar curses
+# Inicializar ncurses
 pantalla = curses.initscr()
 pantalla.timeout(0)
 curses.start_color()
@@ -46,44 +46,44 @@ x, y = 0, 0
 
 
 def lista_intervalos():
-    if argumentos["pomodoro"]:
-        lista = []
-        for i in range(0, int(argumentos["--pomodoros"])):
-            lista.append(25)
+    """Devuelve un diccionario con los entrada."""
+    if entrada["pomodoro"]:
+        intervalo = []
+        for i in range(0, int(entrada["--pomodoros"])):
+            intervalo.append(25)
             # Cada 4 pomodoros deja un descanso largo
-            if (i+1) % 4 == 0 and argumentos["--desc_largo"]:
-                lista.append(15)
+            if (i+1) % 4 == 0 and entrada["--desc_largo"]:
+                intervalo.append(15)
             else:
-                lista.append(5)
-        return {"intervalo": lista, "tipo": "pomodoro",
-                "infinito": argumentos["--pomodoros"] == "infinitos"}
+                intervalo.append(5)
+        return {"intervalo": intervalo, "tipo": "pomodoro",
+                "infinito": entrada["--pomodoros"] == "infinitos"}
     else:
-        """Pasa los intervalos a segundos (dependiendo de la última letra
-        del argumento) y los añade a una lista que se retorna."""
-        intervalo = argumentos["<intervalo>"]
-        lista = []
-        for i in intervalo:
+        intervalo = []
+        for i in entrada["<intervalo>"]:
+            """Crea una lista de intervalos con los entrada que se han dado.
+            """
             if i[-1] == 's':
-                lista.append(int(i[:-1]))
+                intervalo.append(int(i[:-1]))
             elif i[-1] == 'm':
-                lista.append(int(i[:-1])*60)
+                intervalo.append(int(i[:-1])*60)
             elif i[-1] == 'h':
-                lista.append(int(i[:-1])*3600)
+                intervalo.append(int(i[:-1])*3600)
             else:
                 try:
-                    lista.append(int(i)*60)
+                    intervalo.append(int(i)*60)
                 except ValueError:
                     print("El intervalo no ha sido reconocido.\n",
                           "Vuelva a intentarlo.")
-        return {"intervalo": lista, "tipo": "intervalo",
-                "infinito": argumentos["--infinito"]}
+        return {"intervalo": intervalo, "tipo": "intervalo",
+                "infinito": entrada["--infinito"]}
 
 
 argumentos = lista_intervalos()
 
 
 def numeroAletra(segundos):
-    """Transforma los segundos en una string utilizable"""
+    """Transforma los segundos en una cadena utilizable"""
     m, s = divmod(segundos, 60)
     h, m = divmod(m, 60)
     letra = "%02d:%02d:%02d" % (h, m, s)
@@ -96,18 +96,25 @@ def numeroAletra(segundos):
 
 
 class cronometro():
+    """Gestiona el contador."""
     def __init__(self):
         self.inicio = int(time.time())
         self.parado = False
         self.tiempo_parado = 0
 
     def segundos(self):
+        """Devuelve el número de segundos que han pasado desde que se inició el
+        cronómetro.
+        """
         if self.parado:
             return (self.inicio_parado - self.inicio) - self.tiempo_parado
         else:
             return (int(time.time()) - self.inicio) - self.tiempo_parado
 
     def ahora(self):
+        """Devuelve una cadena estilizada con el tiempo que ha pasado desde que
+        se inició el cronómetro.
+        """
         return numeroAletra(self.segundos())
 
     def cambiar_estado(self):
@@ -126,43 +133,47 @@ class cronometro():
 cronometro = cronometro()
 
 
-def dibujar(string_, color="blanco"):
+def dibujar(cadena_arg, color="blanco"):
+    """Dibuja en la terminal los carácteres dados."""
     global x, y
     pantalla.clear()
-    string = []
-    for i in string_:
-        string += i
-        string += " "
-    for caracter in range(0, len(string)):
-        for fila in range(0, len(numeros[string[caracter]])):
-            for pixel in range(0, len(numeros[string[caracter]][fila])):
+    cadena = []
+    for i in cadena_arg:
+        """Transforma la cadena dada en una cadena con la que se puede
+        trabajar.
+        """
+        cadena += i
+        cadena += " "
+    for caracter in range(0, len(cadena)):
+        for fila in range(0, len(numeros[cadena[caracter]])):
+            for pixel in range(0, len(numeros[cadena[caracter]][fila])):
                 exceso = pixel * 2
-                if numeros[string[caracter]][fila][pixel] != " ":
+                if numeros[cadena[caracter]][fila][pixel] != " ":
                     pantalla.addstr(y+fila, x+exceso,
-                                    numeros[string[caracter]][fila][pixel],
+                                    numeros[cadena[caracter]][fila][pixel],
                                     colores[color])
                     pantalla.addstr(y+fila, x+exceso+1,
-                                    numeros[string[caracter]][fila][pixel],
+                                    numeros[cadena[caracter]][fila][pixel],
                                     colores[color])
                 else:
                     if color == "blanco":
                         pantalla.addstr(fila+y, exceso+x,
-                                        numeros[string[caracter]][fila][pixel],
+                                        numeros[cadena[caracter]][fila][pixel],
                                         colores["negro"])
                         pantalla.addstr(fila+y, exceso+x+1,
-                                        numeros[string[caracter]][fila][pixel],
+                                        numeros[cadena[caracter]][fila][pixel],
                                         colores["negro"])
                     if color == "negro":
                         pantalla.addstr(fila+y, exceso+x,
-                                        numeros[string[caracter]][fila][pixel],
+                                        numeros[cadena[caracter]][fila][pixel],
                                         colores["blanco"])
                         pantalla.addstr(fila+y, exceso+x+1,
-                                        numeros[string[caracter]][fila][pixel],
+                                        numeros[cadena[caracter]][fila][pixel],
                                         colores["blanco"])
                     else:
                         pass
         pantalla.move(pantalla.getmaxyx()[0]-1, pantalla.getmaxyx()[1]-1)
-        x += len(numeros[string[caracter]][0])*2
+        x += len(numeros[cadena[caracter]][0])*2
     x, y = 0, 0
     pantalla.refresh()
 
