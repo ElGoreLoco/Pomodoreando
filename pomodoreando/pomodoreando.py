@@ -117,7 +117,7 @@ class cronometro():
             self.inicio_parado = int(time.time())
 
     def reiniciar(self):
-        self.inicio = time.time()
+        self.inicio = int(time.time())
 
 
 cronometro = cronometro()
@@ -172,7 +172,8 @@ def contar_intervalo(pos):
     while True:
         entrada = pantalla.getch()
 
-        if entrada == ord('t') or cronometro.segundos == argumentos["intervalo"][pos]:
+        if entrada == ord('t') or cronometro.segundos() == argumentos["intervalo"][pos]:
+            dibujar(cronometro.ahora())
             break
         elif entrada == ord('p'):
             cronometro.cambiar_estado()
