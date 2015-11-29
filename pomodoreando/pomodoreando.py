@@ -8,7 +8,8 @@ Opciones:
     -i --infinito           Hace que los intervalos sean infinitos
     -c --continuo           Hace que no tengas que confirmar para que comience
                             el siguiente intervalo
-    -p --pomodoros NUMERO   El número de pomodoros que correrá [default: infinitos]
+    -p --pomodoros NUMERO   El número de pomodoros que correrá
+                            [default: infinitos]
     -d --desc_largo         Hace que cada 4 pomodoros haya un descanso largo
 """
 
@@ -54,7 +55,8 @@ def lista_intervalos():
                 lista.append(15)
             else:
                 lista.append(5)
-        return { "intervalo": lista, "tipo": "pomodoro", "infinito": argumentos["--pomodoros"] == "infinitos" }
+        return {"intervalo": lista, "tipo": "pomodoro",
+                "infinito": argumentos["--pomodoros"] == "infinitos"}
     else:
         """Pasa los intervalos a segundos (dependiendo de la última letra
         del argumento) y los añade a una lista que se retorna."""
@@ -73,7 +75,8 @@ def lista_intervalos():
                 except ValueError:
                     print("El intervalo no ha sido reconocido.\n",
                           "Vuelva a intentarlo.")
-        return { "intervalo": lista, "tipo": "intervalo", "infinito": argumentos["--infinito"] }
+        return {"intervalo": lista, "tipo": "intervalo",
+                "infinito": argumentos["--infinito"]}
 
 
 argumentos = lista_intervalos()
@@ -172,7 +175,8 @@ def contar_intervalo(pos):
     while True:
         entrada = pantalla.getch()
 
-        if entrada == ord('t') or cronometro.segundos() == argumentos["intervalo"][pos]:
+        if (entrada == ord('t') or
+                cronometro.segundos() == argumentos["intervalo"][pos]):
             dibujar(cronometro.ahora())
             break
         elif entrada == ord('p'):
@@ -184,7 +188,6 @@ def contar_intervalo(pos):
 
 
 def main():
-    #while True:
     for i in range(len(argumentos["intervalo"])):
         contar_intervalo(i)
         time.sleep(1)
