@@ -5,7 +5,8 @@
 Opciones:
     -h --help               Muestra la ayuda
     -v --version            Muestra la versión
-    -i --infinito           Hace que los intervalos sean infinitos
+    -i --infinito           Hace que la lista de intervalos se repita
+                            infinitamente
     -c --continuo           Hace que no tengas que confirmar para que comience
                             el siguiente intervalo
     -p --pomodoros NUMERO   El número de pomodoros que correrá
@@ -46,16 +47,25 @@ x, y = 0, 0
 
 
 def lista_intervalos():
-    """Devuelve un diccionario con los entrada."""
+    """Devuelve un diccionario con la entrada."""
     if entrada["pomodoro"]:
         intervalo = []
-        for i in range(0, int(entrada["--pomodoros"])):
-            intervalo.append(25)
-            # Cada 4 pomodoros deja un descanso largo
-            if (i+1) % 4 == 0 and entrada["--desc_largo"]:
-                intervalo.append(15)
-            else:
-                intervalo.append(5)
+        if entrada["--pomodoros"] == "infinitos":
+            for i in range(0, 4):
+                intervalo.append(25)
+                # Cada 4 pomodoros deja un descanso largo
+                if (i+1) % 4 == 0 and entrada["--desc_largo"]:
+                    intervalo.append(15)
+                else:
+                    intervalo.append(5)
+        else:
+            for i in range(0, int(entrada["--pomodoros"])):
+                intervalo.append(25)
+                # Cada 4 pomodoros deja un descanso largo
+                if (i+1) % 4 == 0 and entrada["--desc_largo"]:
+                    intervalo.append(15)
+                else:
+                    intervalo.append(5)
         return {"intervalo": intervalo, "tipo": "pomodoro",
                 "infinito": entrada["--pomodoros"] == "infinitos"}
     else:
@@ -182,31 +192,33 @@ def pene():
     dibujar("p", "rosa")
 
 
-def contar_intervalo(pos):
-    while True:
-        entrada = pantalla.getch()
-
-        if (entrada == ord('t') or
-                cronometro.segundos() == argumentos["intervalo"][pos]):
-            dibujar(cronometro.ahora())
-            break
-        elif entrada == ord('p'):
-            cronometro.cambiar_estado()
-
-        dibujar(cronometro.ahora())
-
-        time.sleep(0.01)
+def salir():
+    curses.nocbreak()
+    curses.echo()
+    curses.endwin()
+    os._exit(0)
 
 
 def main():
-    for i in range(len(argumentos["intervalo"])):
-        contar_intervalo(i)
-        time.sleep(1)
-        cronometro.reiniciar()
+    primera_vez = True
+    while argumentos["infinito"] or primera_vez:
+        for i in argumentos["intervalo"]:
+            print(i)
+            while True:
+                entrada = pantalla.getch()
+                if entrada == ord('t') or cronometro.segundos() == i:
+                    dibujar(cronometro.ahora())
+                    time.sleep(1)
+                    cronometro.reiniciar()
+                    break
+                elif entrada == ord('T'):
+                    salir()
+                elif entrada == ord('p'):
+                    cronometro.cambiar_estado()
+                dibujar(cronometro.ahora())
+                time.sleep(0.01)
+        primera_vez = False
 
 
 main()
-curses.nocbreak()
-curses.echo()
-curses.endwin()
-os._exit(0)
+salir()
