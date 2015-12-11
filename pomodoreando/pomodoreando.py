@@ -146,6 +146,8 @@ cronometro = cronometro()
 def dibujar(cadena_arg, color="blanco"):
     """Dibuja en la terminal los carácteres dados."""
     global x, y
+    ancho = 0
+    alto = 5
     pantalla.clear()
     cadena = []
     for i in cadena_arg:
@@ -154,6 +156,11 @@ def dibujar(cadena_arg, color="blanco"):
         """
         cadena += i
         cadena += " "
+    for i in cadena:
+        ancho += len(numeros[i][0])*2
+    ancho -= 2
+    y = int(pantalla.getmaxyx()[0]/2 - alto/2)
+    x = int(pantalla.getmaxyx()[1]/2 - ancho/2)
     for caracter in range(0, len(cadena)):
         for fila in range(0, len(numeros[cadena[caracter]])):
             for pixel in range(0, len(numeros[cadena[caracter]][fila])):
@@ -173,18 +180,15 @@ def dibujar(cadena_arg, color="blanco"):
                         pantalla.addstr(fila+y, exceso+x+1,
                                         numeros[cadena[caracter]][fila][pixel],
                                         colores["negro"])
-                    if color == "negro":
+                    elif color == "negro":
                         pantalla.addstr(fila+y, exceso+x,
                                         numeros[cadena[caracter]][fila][pixel],
                                         colores["blanco"])
                         pantalla.addstr(fila+y, exceso+x+1,
                                         numeros[cadena[caracter]][fila][pixel],
                                         colores["blanco"])
-                    else:
-                        pass
-        pantalla.move(pantalla.getmaxyx()[0]-1, pantalla.getmaxyx()[1]-1)
         x += len(numeros[cadena[caracter]][0])*2
-    x, y = 0, 0
+    pantalla.move(pantalla.getmaxyx()[0]-1, pantalla.getmaxyx()[1]-1)
     pantalla.refresh()
 
 
@@ -203,7 +207,6 @@ def main():
     primera_vez = True
     while argumentos["infinito"] or primera_vez:
         for i in argumentos["intervalo"]:
-            print(i)
             while True:
                 entrada = pantalla.getch()
                 if entrada == ord('t') or cronometro.segundos() == i:
