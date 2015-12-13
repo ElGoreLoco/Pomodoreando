@@ -64,22 +64,23 @@ def lista_intervalos():
         intervalo = []
         if entrada["--pomodoros"] == "infinitos":
             for i in range(0, 4):
-                intervalo.append(25)
+                intervalo.append(25*60)
                 # Cada 4 pomodoros deja un descanso largo
                 if (i+1) % 4 == 0 and entrada["--desc_largo"]:
-                    intervalo.append(15)
+                    intervalo.append(15*60)
                 else:
-                    intervalo.append(5)
+                    intervalo.append(5*60)
         else:
             for i in range(0, int(entrada["--pomodoros"])):
-                intervalo.append(25)
+                intervalo.append(25*60)
                 # Cada 4 pomodoros deja un descanso largo
                 if (i+1) % 4 == 0 and entrada["--desc_largo"]:
-                    intervalo.append(15)
+                    intervalo.append(15*60)
                 else:
-                    intervalo.append(5)
+                    intervalo.append(5*60)
         return {"intervalo": intervalo, "tipo": "pomodoro",
-                "infinito": entrada["--pomodoros"] == "infinitos"}
+                "infinito": entrada["--pomodoros"] == "infinitos",
+                "continuo": entrada["--continuo"]}
     else:
         intervalo = []
         for i in entrada["<intervalo>"]:
@@ -99,7 +100,8 @@ def lista_intervalos():
                           "Vuelva a intentarlo.")
                     salir()
         return {"intervalo": intervalo, "tipo": "intervalo",
-                "infinito": entrada["--infinito"]}
+                "infinito": entrada["--infinito"],
+                "continuo": entrada["--continuo"]}
 
 
 argumentos = lista_intervalos()
@@ -122,6 +124,7 @@ class Cronometro():
     """Gestiona el contador."""
     def __init__(self):
         self.inicio = int(time.time())
+        #self.inicio -= 24.75*60
         self.parado = False
         self.tiempo_parado = 0
 
@@ -221,8 +224,8 @@ class Dibujar():
             self.x += len(numeros[cadena[caracter]][0])*2
         pantalla.move(pantalla.getmaxyx()[0]-1, pantalla.getmaxyx()[1]-1)
 
-    def mensaje(self, texto, color="blanco"):
-        self.y = int(pantalla.getmaxyx()[0]/2 + 3)
+    def mensaje(self, texto, bajar=0, color="blanco"):
+        self.y = int(pantalla.getmaxyx()[0]/2 + 3) + bajar
         self.x = int(pantalla.getmaxyx()[1]/2 - len(texto)/2)
         pantalla.addstr(self.y, self.x, texto, colores_texto[color])
         pantalla.move(pantalla.getmaxyx()[0]-1, pantalla.getmaxyx()[1]-1)
@@ -234,19 +237,39 @@ class Dibujar():
 dibujar = Dibujar()
 
 
+class Pantallas():
+    def intervalo_terminado(self):
+        dibujar.tiempo(cronometro.ahora())
+        pantalla.refresh()
+
+        dibujar.mensaje("El cronómetro ha terminado.")
+        dibujar.mensaje("Pulse «s» para seguir o «t» para terminar.", 1)
+        while True:
+            entrada = pantalla.getch()
+            if entrada == ord('s'):
+                pantalla.clear()
+                cronometro.reiniciar()
+                break
+            elif entrada == ord('t'):
+                salir()
+
+pantallas = Pantallas()
+
+
 def main():
     primera_vez = True
     while argumentos["infinito"] or primera_vez:
         for i in argumentos["intervalo"]:
             while True:
                 entrada = pantalla.getch()
-                if entrada == ord('t') or cronometro.segundos() == i:
-                    dibujar.tiempo(cronometro.ahora())
-                    dibujar.mensaje("El cronómeto ha terminado")
-                    pantalla.refresh()
-                    time.sleep(1)
-                    cronometro.reiniciar()
+                if entrada == ord('t') or cronometro.segundos() >= i:
+                    if not argumentos["continuo"]:
+                        pantallas.intervalo_terminado()
                     break
+                #elif entrada == ord('+'):
+                    #cronometro.inicio -= 60
+                #elif entrada == ord('-'):
+                    #cronometro.inicio += 60
                 elif entrada == ord('T'):
                     salir()
                 elif entrada == ord('p'):
