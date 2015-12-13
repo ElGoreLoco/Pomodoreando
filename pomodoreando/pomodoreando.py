@@ -50,7 +50,12 @@ colores_texto = {
 curses.noecho()
 curses.cbreak()
 
-x, y = 0, 0
+
+def salir():
+    curses.nocbreak()
+    curses.echo()
+    curses.endwin()
+    os._exit(0)
 
 
 def lista_intervalos():
@@ -92,6 +97,7 @@ def lista_intervalos():
                 except ValueError:
                     print("El intervalo no ha sido reconocido.\n",
                           "Vuelva a intentarlo.")
+                    salir()
         return {"intervalo": intervalo, "tipo": "intervalo",
                 "infinito": entrada["--infinito"]}
 
@@ -139,7 +145,7 @@ class Cronometro():
             self.parado = False  # seguir xq está parado
             self.final_parado = int(time.time())
             self.tiempo_parado += self.final_parado - self.inicio_parado
-        elif not self.parado:
+        else:
             self.parado = True  # parar xq no está parado
             self.inicio_parado = int(time.time())
 
@@ -151,12 +157,12 @@ cronometro = Cronometro()
 
 
 class Dibujar():
+    def __init__(self):
+        self.x = 0
+        self.y = 0
+
     def tiempo(self, cadena_arg, color="blanco"):
         """Dibuja en la terminal los carácteres dados."""
-        global x, y
-        ancho = 0
-        alto = 5
-        pantalla.clear()
         cadena = []
         for i in cadena_arg:
             """Transforma la cadena dada en una cadena con la que se puede
@@ -164,57 +170,61 @@ class Dibujar():
             """
             cadena += i
             cadena += " "
+        del cadena[-1]
+
+        ancho = 0
+        alto = 5
         for i in cadena:
+            """Calcula el ancho de los números."""
             ancho += len(numeros[i][0])*2
-        ancho -= 2
-        y = int(pantalla.getmaxyx()[0]/2 - alto/2)
-        x = int(pantalla.getmaxyx()[1]/2 - ancho/2)
+        self.y = int(pantalla.getmaxyx()[0]/2 - alto/2)
+        self.x = int(pantalla.getmaxyx()[1]/2 - ancho/2)
+
         for caracter in range(0, len(cadena)):
             for fila in range(0, len(numeros[cadena[caracter]])):
                 for pixel in range(0, len(numeros[cadena[caracter]][fila])):
                     exceso = pixel * 2
                     if numeros[cadena[caracter]][fila][pixel] != " ":
                         pantalla.addstr(
-                                y+fila, x+exceso,
+                                self.y+fila, self.x+exceso,
                                 numeros[cadena[caracter]][fila][pixel],
                                 colores_planos[color]
                         )
                         pantalla.addstr(
-                                y+fila, x+exceso+1,
+                                self.y+fila, self.x+exceso+1,
                                 numeros[cadena[caracter]][fila][pixel],
                                 colores_planos[color]
                         )
                     else:
                         if color == "blanco":
                             pantalla.addstr(
-                                    fila+y, exceso+x,
+                                    fila+self.y, exceso+self.x,
                                     numeros[cadena[caracter]][fila][pixel],
                                     colores_planos["negro"]
                             )
                             pantalla.addstr(
-                                    fila+y, exceso+x+1,
+                                    fila+self.y, exceso+self.x+1,
                                     numeros[cadena[caracter]][fila][pixel],
                                     colores_planos["negro"]
                             )
                         elif color == "negro":
                             pantalla.addstr(
-                                    fila+y, exceso+x,
+                                    fila+self.y, exceso+self.x,
                                     numeros[cadena[caracter]][fila][pixel],
                                     colores_planos["blanco"]
                             )
                             pantalla.addstr(
-                                    fila+y, exceso+x+1,
+                                    fila+self.y, exceso+self.x+1,
                                     numeros[cadena[caracter]][fila][pixel],
                                     colores_planos["blanco"]
                             )
-            x += len(numeros[cadena[caracter]][0])*2
+            self.x += len(numeros[cadena[caracter]][0])*2
         pantalla.move(pantalla.getmaxyx()[0]-1, pantalla.getmaxyx()[1]-1)
 
     def mensaje(self, texto, color="blanco"):
-        centro = [pantalla.getmaxyx()[0]/2, pantalla.getmaxyx()[1]/2]
-        y = int(centro[0] + 3)
-        x = int(centro[1] - len(texto)/2)
-        pantalla.addstr(y, x, texto, colores_texto[color])
+        self.y = int(pantalla.getmaxyx()[0]/2 + 3)
+        self.x = int(pantalla.getmaxyx()[1]/2 - len(texto)/2)
+        pantalla.addstr(self.y, self.x, texto, colores_texto[color])
         pantalla.move(pantalla.getmaxyx()[0]-1, pantalla.getmaxyx()[1]-1)
 
     def pene(self):
@@ -222,13 +232,6 @@ class Dibujar():
 
 
 dibujar = Dibujar()
-
-
-def salir():
-    curses.nocbreak()
-    curses.echo()
-    curses.endwin()
-    os._exit(0)
 
 
 def main():
