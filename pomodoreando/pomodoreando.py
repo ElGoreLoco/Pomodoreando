@@ -21,8 +21,8 @@ import time
 from sys import argv
 from docopt import docopt
 
-from datos import *
-from __version__ import __version__
+from . import __version__
+from .datos import *
 
 # Inicializar docopt
 entrada = docopt(__doc__, version=__version__)
